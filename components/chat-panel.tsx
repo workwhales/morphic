@@ -24,6 +24,7 @@ interface ChatPanelProps {
   stop: () => void
   append: (message: any) => void
   models?: Model[]
+  inputRef: React.RefObject<HTMLTextAreaElement>
 }
 
 export function ChatPanel({
