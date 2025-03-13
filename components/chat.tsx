@@ -7,6 +7,8 @@ import { useEffect } from 'react'
 import { toast } from 'sonner'
 import { ChatMessages } from './chat-messages'
 import { ChatPanel } from './chat-panel'
+import { useSearchBar } from './search-bar-provider'
+import { IconLogo } from './ui/icons'
 
 export function Chat({
   id,
@@ -19,6 +21,7 @@ export function Chat({
   query?: string
   models?: Model[]
 }) {
+  const { searchQuery } = useSearchBar()
   const {
     messages,
     input,
@@ -47,7 +50,19 @@ export function Chat({
 
   useEffect(() => {
     setMessages(savedMessages)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
+
+  // Process search query if available
+  useEffect(() => {
+    if (searchQuery && searchQuery.trim() !== '') {
+      append({
+        role: 'user',
+        content: searchQuery
+      })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery])
 
   const onQuerySelect = (query: string) => {
     append({
@@ -64,6 +79,18 @@ export function Chat({
 
   return (
     <div className="flex flex-col w-full max-w-3xl pt-14 pb-60 mx-auto stretch">
+      {messages.length === 0 && (
+        <div className="flex flex-col items-center justify-center my-8">
+          <IconLogo className="h-16 w-16 text-primary mb-4" />
+          <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70 mb-2">
+            Morphic
+          </h1>
+          <p className="text-muted-foreground text-center max-w-md">
+            A fully open-source AI-powered answer engine with a generative UI
+          </p>
+        </div>
+      )}
+      
       <ChatMessages
         messages={messages}
         data={data}

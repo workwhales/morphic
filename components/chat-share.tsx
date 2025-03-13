@@ -3,6 +3,7 @@
 import { shareChat } from '@/lib/actions/chat'
 import { useCopyToClipboard } from '@/lib/hooks/use-copy-to-clipboard'
 import { cn } from '@/lib/utils'
+import { useUser } from '@clerk/nextjs'
 import { Share } from 'lucide-react'
 import { useState, useTransition } from 'react'
 import { toast } from 'sonner'
@@ -28,12 +29,17 @@ export function ChatShare({ chatId, className }: ChatShareProps) {
   const [pending, startTransition] = useTransition()
   const { copyToClipboard } = useCopyToClipboard({ timeout: 1000 })
   const [shareUrl, setShareUrl] = useState('')
+  const { user } = useUser()
 
   const handleShare = async () => {
     startTransition(() => {
       setOpen(true)
     })
-    const result = await shareChat(chatId)
+    if (!user?.id) {
+      toast.error('You must be signed in to share chats')
+      return
+    }
+    const result = await shareChat(chatId, user.id)
     if (!result) {
       toast.error('Failed to share chat')
       return

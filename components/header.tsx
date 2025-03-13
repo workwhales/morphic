@@ -3,6 +3,7 @@ import React from 'react'
 import HistoryContainer from './history-container'
 import { ModeToggle } from './mode-toggle'
 import { IconLogo } from './ui/icons'
+import { UserMenu } from './user-menu'
 
 export const Header: React.FC = async () => {
   return (
@@ -13,9 +14,10 @@ export const Header: React.FC = async () => {
           <span className="sr-only">Morphic</span>
         </a>
       </div>
-      <div className="flex gap-0.5">
+      <div className="flex gap-0.5 items-center">
         <ModeToggle />
         <HistoryContainer />
+        <UserMenu />
       </div>
     </header>
   )

@@ -1,9 +1,15 @@
-import type { NextRequest } from 'next/server'
+import { clerkMiddleware } from '@clerk/nextjs/server'
+import type { NextFetchEvent, NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 
-export function middleware(request: NextRequest) {
-  // Create a response
-  const response = NextResponse.next()
+export async function middleware(request: NextRequest, event: NextFetchEvent) {
+  // Run Clerk middleware and await response
+  const middlewareResult = await clerkMiddleware()(request, event)
+
+  // Ensure middlewareResult is valid
+  if (!middlewareResult || !(middlewareResult instanceof NextResponse)) {
+    return NextResponse.next()
+  }
 
   // Get the protocol from X-Forwarded-Proto header or request protocol
   const protocol =
@@ -17,10 +23,21 @@ export function middleware(request: NextRequest) {
   const baseUrl = `${protocol}${protocol.endsWith(':') ? '//' : '://'}${host}`
 
   // Add request information to response headers
-  response.headers.set('x-url', request.url)
-  response.headers.set('x-host', host)
-  response.headers.set('x-protocol', protocol)
-  response.headers.set('x-base-url', baseUrl)
+  middlewareResult.headers.set('x-url', request.url)
+  middlewareResult.headers.set('x-host', host)
+  middlewareResult.headers.set('x-protocol', protocol)
+  middlewareResult.headers.set('x-base-url', baseUrl)
 
-  return response
+  return middlewareResult
+}
+
+export default middleware
+
+export const config = {
+  matcher: [
+    // Skip Next.js internals and all static files, unless found in search params
+    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
+    // Always run for API routes
+    '/(api|trpc)(.*)'
+  ]
 }

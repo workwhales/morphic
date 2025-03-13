@@ -12,6 +12,7 @@ interface HandleStreamFinishParams {
   dataStream: DataStreamWriter
   skipRelatedQuestions?: boolean
   annotations?: ExtendedCoreMessage[]
+  userId?: string
 }
 
 export async function handleStreamFinish({
@@ -21,7 +22,8 @@ export async function handleStreamFinish({
   chatId,
   dataStream,
   skipRelatedQuestions = false,
-  annotations = []
+  annotations = [],
+  userId
 }: HandleStreamFinishParams) {
   try {
     const extendedCoreMessages = convertToExtendedCoreMessages(originalMessages)
@@ -67,22 +69,24 @@ export async function handleStreamFinish({
     if (process.env.ENABLE_SAVE_CHAT_HISTORY !== 'true') {
       return
     }
-
     // Get the chat from the database if it exists, otherwise create a new one
-    const savedChat = (await getChat(chatId)) ?? {
+    const savedChat = (await getChat(chatId, userId || 'anonymous')) ?? {
       messages: [],
       createdAt: new Date(),
-      userId: 'anonymous',
+      userId: userId || 'anonymous',
       path: `/search/${chatId}`,
       title: originalMessages[0].content,
       id: chatId
     }
 
     // Save chat with complete response and related questions
-    await saveChat({
-      ...savedChat,
-      messages: generatedMessages
-    }).catch(error => {
+    await saveChat(
+      {
+        ...savedChat,
+        messages: generatedMessages
+      },
+      userId || 'anonymous'
+    ).catch(error => {
       console.error('Failed to save chat:', error)
       throw new Error('Failed to save chat history')
     })

@@ -7,6 +7,7 @@ import {
 } from 'ai'
 import { getMaxAllowedTokens, truncateMessages } from '../utils/context-window'
 import { isReasoningModel } from '../utils/registry'
+import { getUserId } from '../utils/auth'
 import { handleStreamFinish } from './handle-stream-finish'
 import { BaseStreamConfig } from './types'
 
@@ -29,6 +30,14 @@ export function createToolCallingStreamResponse(config: BaseStreamConfig) {
           searchMode
         })
 
+        // Get the authenticated user ID
+        let userId = 'anonymous';
+        try {
+          userId = await getUserId();
+        } catch (error) {
+          console.warn('No authenticated user for chat history:', error);
+        }
+
         const result = streamText({
           ...researcherConfig,
           onFinish: async result => {
@@ -38,7 +47,8 @@ export function createToolCallingStreamResponse(config: BaseStreamConfig) {
               model: modelId,
               chatId,
               dataStream,
-              skipRelatedQuestions: isReasoningModel(modelId)
+              skipRelatedQuestions: isReasoningModel(modelId),
+              userId
             })
           }
         })

@@ -1,6 +1,14 @@
 import { Model } from '@/lib/types/models'
-import { headers } from 'next/headers'
 import defaultModels from './default-models.json'
+
+// Only import headers in server environment
+const isServer = typeof window === 'undefined'
+let headers: () => Headers
+
+if (isServer) {
+  // Lazy load headers for server-side only
+  headers = () => require('next/headers').headers()
+}
 
 export function validateModel(model: any): model is Model {
   return (
@@ -18,7 +26,8 @@ export function validateModel(model: any): model is Model {
 export async function getModels(): Promise<Model[]> {
   try {
     // Check for BASE_URL environment variable first
-    const baseUrlEnv = process.env.BASE_URL
+    const baseUrlEnv =
+      typeof process !== 'undefined' ? process.env.BASE_URL : undefined
     let baseUrlObj: URL
 
     if (baseUrlEnv) {
@@ -38,7 +47,6 @@ export async function getModels(): Promise<Model[]> {
 
     // Construct the models.json URL
     const modelUrl = new URL('/config/models.json', baseUrlObj)
-    console.log('Attempting to fetch models from:', modelUrl.toString())
 
     try {
       const response = await fetch(modelUrl, {
@@ -65,7 +73,6 @@ export async function getModels(): Promise<Model[]> {
 
       const config = JSON.parse(text)
       if (Array.isArray(config.models) && config.models.every(validateModel)) {
-        console.log('Successfully loaded models from URL')
         return config.models
       }
     } catch (error: any) {
@@ -74,17 +81,17 @@ export async function getModels(): Promise<Model[]> {
         'Fetch failed, falling back to default models:',
         error.message || 'Unknown error'
       )
-
-      if (
-        Array.isArray(defaultModels.models) &&
-        defaultModels.models.every(validateModel)
-      ) {
-        console.log('Successfully loaded default models')
-        return defaultModels.models
-      }
     }
   } catch (error) {
     console.warn('Failed to load models:', error)
+  }
+
+  // Fallback to default models
+  if (
+    Array.isArray(defaultModels.models) &&
+    defaultModels.models.every(validateModel)
+  ) {
+    return defaultModels.models
   }
 
   // Last resort: return empty array
@@ -94,13 +101,18 @@ export async function getModels(): Promise<Model[]> {
 
 // Helper function to get base URL from headers
 async function getBaseUrlFromHeaders(): Promise<URL> {
-  const headersList = await headers()
-  const baseUrl = headersList.get('x-base-url')
-  const url = headersList.get('x-url')
-  const host = headersList.get('x-host')
-  const protocol = headersList.get('x-protocol') || 'http:'
+  if (!isServer) {
+    // In the client, create base URL from window.location
+    return new URL(window.location.origin)
+  }
 
   try {
+    const headersList = await headers()
+    const baseUrl = headersList.get('x-base-url')
+    const url = headersList.get('x-url')
+    const host = headersList.get('x-host')
+    const protocol = headersList.get('x-protocol') || 'http:'
+
     // Try to use the pre-constructed base URL if available
     if (baseUrl) {
       return new URL(baseUrl)
@@ -111,11 +123,11 @@ async function getBaseUrlFromHeaders(): Promise<URL> {
         protocol.endsWith(':') ? '//' : '://'
       }${host}`
       return new URL(constructedUrl)
-    } else {
-      return new URL('http://localhost:3000')
     }
   } catch (urlError) {
-    // Fallback to default URL if any error occurs during URL construction
-    return new URL('http://localhost:3000')
+    console.warn('Error getting base URL from headers:', urlError)
   }
+
+  // Fallback to default URL
+  return new URL('http://localhost:3000')
 }

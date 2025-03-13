@@ -1,3 +1,4 @@
+import { auth } from '@clerk/nextjs/server'
 import React from 'react'
 import { History } from './history'
 import { HistoryList } from './history-list'
@@ -7,11 +8,18 @@ const HistoryContainer: React.FC = async () => {
   if (!enableSaveChatHistory) {
     return null
   }
+  // Get user ID from Clerk authentication
+  const { userId } = await auth()
+
+  // Only show history for authenticated users
+  if (!userId) {
+    return null
+  }
 
   return (
     <div>
       <History>
-        <HistoryList userId="anonymous" />
+        <HistoryList userId={userId} />
       </History>
     </div>
   )
