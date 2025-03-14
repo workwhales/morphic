@@ -2,11 +2,13 @@
 
 import { Model } from '@/lib/types/models'
 import { cn } from '@/lib/utils'
+import { SignInButton } from '@clerk/nextjs'
 import { Message } from 'ai'
 import { ArrowUp, MessageCirclePlus, Square } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import Textarea from 'react-textarea-autosize'
+import { toast } from 'sonner'
 import { EmptyScreen } from './empty-screen'
 import { ModelSelector } from './model-selector'
 import { SearchModeToggle } from './search-mode-toggle'
@@ -39,6 +41,7 @@ export function ChatPanel({
   models
 }: ChatPanelProps) {
   const [showEmptyScreen, setShowEmptyScreen] = useState(false)
+  const [showAuthModal, setShowAuthModal] = useState(false)
   const router = useRouter()
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const isFirstRender = useRef(true)
@@ -58,6 +61,33 @@ export function ChatPanel({
   const handleNewChat = () => {
     setMessages([])
     router.push('/')
+  }
+
+  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        body: JSON.stringify({ message: input })
+      })
+
+      if (response.status === 401) {
+        // Show auth modal if unauthorized
+        setShowAuthModal(true)
+        return
+      }
+
+      if (!response.ok) {
+        throw new Error('Failed to send message')
+      }
+
+      // If authorized, proceed with normal submit
+      handleSubmit(e)
+    } catch (error) {
+      console.error('Error submitting:', error)
+      toast.error('Failed to send message')
+    }
   }
 
   // if query is not empty, submit the query
@@ -87,7 +117,7 @@ export function ChatPanel({
         </div>
       )}
       <form
-        onSubmit={handleSubmit}
+        onSubmit={handleFormSubmit}
         className={cn(
           'max-w-3xl w-full mx-auto transition-all duration-300 ease-in-out',
           messages.length > 0 ? 'px-2 py-4' : 'px-6'
@@ -165,6 +195,33 @@ export function ChatPanel({
             </div>
           </div>
         </div>
+
+        {showAuthModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 transition-all duration-300 ease-in-out">
+            <div className="bg-white rounded-2xl p-6 max-w-md w-full mx-4 transform transition-all duration-300 ease-in-out">
+              <h2 className="text-xl font-semibold mb-4">
+                Sign in to Continue
+              </h2>
+              <p className="text-gray-600 mb-6">
+                Please sign in to submit your query and view results.
+              </p>
+              <div className="flex justify-end gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowAuthModal(false)}
+                  className="transition-all duration-300"
+                >
+                  Cancel
+                </Button>
+                <SignInButton mode="modal">
+                  <Button className="bg-black text-white hover:bg-gray-800 transition-all duration-300">
+                    Sign in
+                  </Button>
+                </SignInButton>
+              </div>
+            </div>
+          </div>
+        )}
 
         {messages.length === 0 && (
           <EmptyScreen
