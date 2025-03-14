@@ -39,6 +39,8 @@ export function ModelSelector({ models }: ModelSelectorProps) {
   const [open, setOpen] = useState(false)
   const [value, setValue] = useState('')
 
+  console.log('ModelSelector received models:', models)
+
   useEffect(() => {
     const savedModel = getCookie('selectedModel')
     if (savedModel) {
@@ -54,19 +56,22 @@ export function ModelSelector({ models }: ModelSelectorProps) {
   const handleModelSelect = (id: string) => {
     const newValue = id === value ? '' : id
     setValue(newValue)
-    
-    const selectedModel = models.find(model => createModelId(model) === newValue)
+
+    const selectedModel = models.find(
+      model => createModelId(model) === newValue
+    )
     if (selectedModel) {
       setCookie('selectedModel', JSON.stringify(selectedModel))
     } else {
       setCookie('selectedModel', '')
     }
-    
+
     setOpen(false)
   }
 
   const selectedModel = models.find(model => createModelId(model) === value)
   const groupedModels = groupModelsByProvider(models)
+  console.log('Grouped models:', groupedModels)
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

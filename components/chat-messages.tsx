@@ -92,7 +92,10 @@ export function ChatMessages({
   return (
     <div className="relative mx-auto px-4 w-full">
       {messages.map(message => (
-        <div key={message.id} className="mb-4 flex flex-col gap-4">
+        <div
+          key={message.id}
+          className="mb-4 flex flex-col gap-4 transition-all duration-300 ease-in-out"
+        >
           <RenderMessage
             message={message}
             messageId={message.id}
@@ -105,16 +108,20 @@ export function ChatMessages({
       ))}
       {showLoading &&
         (lastToolData ? (
-          <ToolSection
-            key={manualToolCallId}
-            tool={lastToolData}
-            isOpen={getIsOpen(manualToolCallId)}
-            onOpenChange={open => handleOpenChange(manualToolCallId, open)}
-          />
+          <div className="transition-all duration-300 ease-in-out">
+            <ToolSection
+              key={manualToolCallId}
+              tool={lastToolData}
+              isOpen={getIsOpen(manualToolCallId)}
+              onOpenChange={open => handleOpenChange(manualToolCallId, open)}
+            />
+          </div>
         ) : (
-          <Spinner />
+          <div className="transition-opacity duration-300">
+            <Spinner />
+          </div>
         ))}
-      <div ref={messagesEndRef} /> {/* Add empty div as scroll anchor */}
+      <div ref={messagesEndRef} />
     </div>
   )
 }

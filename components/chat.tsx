@@ -42,12 +42,28 @@ export function Chat({
     onError: error => {
       toast.error(`Error in chat: ${error.message}`)
     },
-    sendExtraMessageFields: false // Disable extra message fields
+    sendExtraMessageFields: false
   })
 
   useEffect(() => {
     setMessages(savedMessages)
   }, [id, savedMessages, setMessages])
+
+  // Add keyboard shortcut handler
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === '/') {
+        e.preventDefault()
+        const textarea = document.querySelector('textarea')
+        if (textarea) {
+          textarea.focus()
+        }
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
 
   const onQuerySelect = (query: string) => {
     append({
@@ -58,12 +74,12 @@ export function Chat({
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setData(undefined) // reset data to clear tool call
+    setData(undefined)
     handleSubmit(e)
   }
 
   return (
-    <div className="flex flex-col w-full max-w-3xl pt-14 pb-60 mx-auto stretch">
+    <div className="flex flex-col w-full max-w-3xl pt-14 pb-60 mx-auto stretch transition-all duration-300 ease-in-out">
       <ChatMessages
         messages={messages}
         data={data}
@@ -83,6 +99,10 @@ export function Chat({
         append={append}
         models={models}
       />
+      <div className="fixed bottom-4 text-sm text-gray-400">
+        Press <kbd className="px-2 py-1 bg-gray-100 rounded-md">⌘/</kbd> to
+        focus input
+      </div>
     </div>
   )
 }

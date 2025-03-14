@@ -89,11 +89,11 @@ export function ChatPanel({
       <form
         onSubmit={handleSubmit}
         className={cn(
-          'max-w-3xl w-full mx-auto',
+          'max-w-3xl w-full mx-auto transition-all duration-300 ease-in-out',
           messages.length > 0 ? 'px-2 py-4' : 'px-6'
         )}
       >
-        <div className="relative flex flex-col w-full gap-2 bg-muted rounded-3xl border border-input">
+        <div className="relative flex flex-col w-full gap-2 bg-white rounded-3xl border border-gray-200 shadow-sm transition-all duration-300 ease-in-out hover:shadow-md">
           <Textarea
             ref={inputRef}
             name="input"
@@ -105,7 +105,7 @@ export function ChatPanel({
             placeholder="Ask a question..."
             spellCheck={false}
             value={input}
-            className="resize-none w-full min-h-12 bg-transparent border-0 px-4 py-3 text-sm placeholder:text-muted-foreground focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+            className="resize-none w-full min-h-12 bg-transparent border-0 px-4 py-3 text-sm placeholder:text-muted-foreground focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-300"
             onChange={e => {
               handleInputChange(e)
               setShowEmptyScreen(e.target.value.length === 0)
@@ -131,7 +131,7 @@ export function ChatPanel({
           />
 
           {/* Bottom menu area */}
-          <div className="flex items-center justify-between p-3">
+          <div className="flex items-center justify-between p-3 transition-opacity duration-300">
             <div className="flex items-center gap-2">
               <ModelSelector models={models || []} />
               <SearchModeToggle />
@@ -142,18 +142,21 @@ export function ChatPanel({
                   variant="outline"
                   size="icon"
                   onClick={handleNewChat}
-                  className="shrink-0 rounded-full group"
+                  className="shrink-0 rounded-full group transition-all duration-300 hover:scale-105"
                   type="button"
                   disabled={isLoading}
                 >
-                  <MessageCirclePlus className="size-4 group-hover:rotate-12 transition-all" />
+                  <MessageCirclePlus className="size-4 group-hover:rotate-12 transition-all duration-300" />
                 </Button>
               )}
               <Button
                 type={isLoading ? 'button' : 'submit'}
                 size={'icon'}
                 variant={'outline'}
-                className={cn(isLoading && 'animate-pulse', 'rounded-full')}
+                className={cn(
+                  isLoading && 'animate-pulse',
+                  'rounded-full transition-all duration-300 hover:scale-105'
+                )}
                 disabled={input.length === 0 && !isLoading}
                 onClick={isLoading ? stop : undefined}
               >
