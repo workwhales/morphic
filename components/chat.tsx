@@ -12,12 +12,14 @@ export function Chat({
   id,
   savedMessages = [],
   query,
-  models
+  models,
+  userId
 }: {
   id: string
   savedMessages?: Message[]
   query?: string
   models?: Model[]
+  userId?: string | null
 }) {
   const {
     messages,
@@ -34,7 +36,8 @@ export function Chat({
     initialMessages: savedMessages || [],
     id: CHAT_ID,
     body: {
-      id
+      id,
+      userId
     },
     onFinish: () => {
       window.history.replaceState({}, '', `/search/${id}`)
@@ -100,6 +103,7 @@ export function Chat({
         query={query}
         append={append}
         models={models}
+        userId={userId}
       />
       <div className="fixed bottom-4 text-sm text-gray-400">
         Press <kbd className="px-2 py-1 bg-gray-100 rounded-md">⌘/</kbd> to

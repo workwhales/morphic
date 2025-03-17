@@ -8,7 +8,6 @@ import { ArrowUp, MessageCirclePlus, Square } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import Textarea from 'react-textarea-autosize'
-import { toast } from 'sonner'
 import { EmptyScreen } from './empty-screen'
 import { ModelSelector } from './model-selector'
 import { SearchModeToggle } from './search-mode-toggle'
@@ -26,6 +25,7 @@ interface ChatPanelProps {
   stop: () => void
   append: (message: any) => void
   models?: Model[]
+  userId?: string | null
 }
 
 export function ChatPanel({
@@ -38,7 +38,8 @@ export function ChatPanel({
   query,
   stop,
   append,
-  models
+  models,
+  userId
 }: ChatPanelProps) {
   const [showEmptyScreen, setShowEmptyScreen] = useState(false)
   const [showAuthModal, setShowAuthModal] = useState(false)
@@ -66,41 +67,28 @@ export function ChatPanel({
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        body: JSON.stringify({ message: input })
-      })
-
-      if (response.status === 401) {
-        // Show auth modal if unauthorized
-        setShowAuthModal(true)
-        return
-      }
-
-      if (!response.ok) {
-        throw new Error('Failed to send message')
-      }
-
-      // If authorized, proceed with normal submit
-      handleSubmit(e)
-    } catch (error) {
-      console.error('Error submitting:', error)
-      toast.error('Failed to send message')
+    if (!userId) {
+      setShowAuthModal(true)
+      return
     }
+
+    handleSubmit(e)
   }
 
   // if query is not empty, submit the query
   useEffect(() => {
     if (isFirstRender.current && query && query.trim().length > 0) {
+      if (!userId) {
+        setShowAuthModal(true)
+        return
+      }
       append({
         role: 'user',
         content: query
       })
       isFirstRender.current = false
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query])
+  }, [query, userId, append])
 
   return (
     <div
