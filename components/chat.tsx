@@ -31,7 +31,7 @@ export function Chat({
     data,
     setData
   } = useChat({
-    initialMessages: savedMessages,
+    initialMessages: savedMessages || [],
     id: CHAT_ID,
     body: {
       id
@@ -46,7 +46,9 @@ export function Chat({
   })
 
   useEffect(() => {
-    setMessages(savedMessages)
+    if (savedMessages) {
+      setMessages(savedMessages)
+    }
   }, [id, savedMessages, setMessages])
 
   // Add keyboard shortcut handler

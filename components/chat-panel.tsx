@@ -106,12 +106,12 @@ export function ChatPanel({
     <div
       className={cn(
         'mx-auto w-full',
-        messages.length > 0
+        messages?.length > 0
           ? 'fixed bottom-0 left-0 right-0 bg-background'
           : 'fixed bottom-8 left-0 right-0 top-6 flex flex-col items-center justify-center'
       )}
     >
-      {messages.length === 0 && (
+      {messages?.length === 0 && (
         <div className="mb-8">
           <IconLogo className="size-12 text-muted-foreground" />
         </div>
@@ -120,7 +120,7 @@ export function ChatPanel({
         onSubmit={handleFormSubmit}
         className={cn(
           'max-w-3xl w-full mx-auto transition-all duration-300 ease-in-out',
-          messages.length > 0 ? 'px-2 py-4' : 'px-6'
+          messages?.length > 0 ? 'px-2 py-4' : 'px-6'
         )}
       >
         <div className="relative flex flex-col w-full gap-2 bg-white rounded-3xl border border-gray-200 shadow-sm transition-all duration-300 ease-in-out hover:shadow-md">
@@ -167,7 +167,7 @@ export function ChatPanel({
               <SearchModeToggle />
             </div>
             <div className="flex items-center gap-2">
-              {messages.length > 0 && (
+              {messages?.length > 0 && (
                 <Button
                   variant="outline"
                   size="icon"
@@ -223,7 +223,7 @@ export function ChatPanel({
           </div>
         )}
 
-        {messages.length === 0 && (
+        {messages?.length === 0 && (
           <EmptyScreen
             submitMessage={message => {
               handleInputChange({

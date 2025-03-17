@@ -36,7 +36,7 @@ export function ChatMessages({
   }, [])
 
   useEffect(() => {
-    const lastMessage = messages[messages.length - 1]
+    const lastMessage = messages?.[messages.length - 1]
     if (lastMessage?.role === 'user') {
       setOpenStates({ [manualToolCallId]: true })
     }
@@ -67,14 +67,16 @@ export function ChatMessages({
     }
   }, [data])
 
-  if (!messages.length) return null
+  if (!messages?.length) return null
 
-  const lastUserIndex =
-    messages.length -
-    1 -
-    [...messages].reverse().findIndex(msg => msg.role === 'user')
+  const lastUserIndex = messages
+    ? messages.length -
+      1 -
+      [...messages].reverse().findIndex(msg => msg.role === 'user')
+    : -1
 
-  const showLoading = isLoading && messages[messages.length - 1].role === 'user'
+  const showLoading =
+    isLoading && messages?.[messages.length - 1]?.role === 'user'
 
   const getIsOpen = (id: string) => {
     if (id.includes('call')) {

@@ -42,16 +42,14 @@ export function parseToolCallXml<T>(
       // Convert comma-separated strings to arrays for array fields with default empty arrays
       include_domains:
         rawParameters.include_domains
-          ? rawParameters.include_domains.split(',')
-              .map(d => d.trim())
-              .filter(Boolean)
-          : [],
+          ?.split(',')
+          .map(d => d.trim())
+          .filter(Boolean) ?? [],
       exclude_domains:
         rawParameters.exclude_domains
-          ? rawParameters.exclude_domains.split(',')
-              .map(d => d.trim())
-              .filter(Boolean)
-          : [],
+          ?.split(',')
+          .map(d => d.trim())
+          .filter(Boolean) ?? [],
       // Convert string to number for numeric fields
       max_results: rawParameters.max_results
         ? parseInt(rawParameters.max_results, 10)
