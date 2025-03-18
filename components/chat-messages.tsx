@@ -36,7 +36,7 @@ export function ChatMessages({
   }, [])
 
   useEffect(() => {
-    const lastMessage = messages?.[messages.length - 1]
+    const lastMessage = messages[messages.length - 1]
     if (lastMessage?.role === 'user') {
       setOpenStates({ [manualToolCallId]: true })
     }
@@ -67,16 +67,14 @@ export function ChatMessages({
     }
   }, [data])
 
-  if (!messages?.length) return null
+  if (!messages.length) return null
 
-  const lastUserIndex = messages
-    ? messages.length -
-      1 -
-      [...messages].reverse().findIndex(msg => msg.role === 'user')
-    : -1
+  const lastUserIndex =
+    messages.length -
+    1 -
+    [...messages].reverse().findIndex(msg => msg.role === 'user')
 
-  const showLoading =
-    isLoading && messages?.[messages.length - 1]?.role === 'user'
+  const showLoading = isLoading && messages[messages.length - 1].role === 'user'
 
   const getIsOpen = (id: string) => {
     if (id.includes('call')) {
@@ -97,10 +95,7 @@ export function ChatMessages({
   return (
     <div className="relative mx-auto px-4 w-full">
       {messages.map(message => (
-        <div
-          key={message.id}
-          className="mb-4 flex flex-col gap-4 transition-all duration-300 ease-in-out"
-        >
+        <div key={message.id} className="mb-4 flex flex-col gap-4">
           <RenderMessage
             message={message}
             messageId={message.id}
@@ -113,20 +108,16 @@ export function ChatMessages({
       ))}
       {showLoading &&
         (lastToolData ? (
-          <div className="transition-all duration-300 ease-in-out">
-            <ToolSection
-              key={manualToolCallId}
-              tool={lastToolData}
-              isOpen={getIsOpen(manualToolCallId)}
-              onOpenChange={open => handleOpenChange(manualToolCallId, open)}
-            />
-          </div>
+          <ToolSection
+            key={manualToolCallId}
+            tool={lastToolData}
+            isOpen={getIsOpen(manualToolCallId)}
+            onOpenChange={open => handleOpenChange(manualToolCallId, open)}
+          />
         ) : (
-          <div className="transition-opacity duration-300">
-            <Spinner />
-          </div>
+          <Spinner />
         ))}
-      <div ref={messagesEndRef} />
+      <div ref={messagesEndRef} /> {/* Add empty div as scroll anchor */}
     </div>
   )
 }
