@@ -2,7 +2,7 @@
 
 import { Model } from '@/lib/types/models'
 import { cn } from '@/lib/utils'
-import { SignInButton } from '@clerk/nextjs'
+import { SignInButton, useAuth } from '@clerk/nextjs'
 import { Message } from 'ai'
 import { ArrowUp, MessageCirclePlus, Square } from 'lucide-react'
 import { useRouter } from 'next/navigation'
@@ -41,6 +41,7 @@ export function ChatPanel({
   models,
   userId
 }: ChatPanelProps) {
+  const { isLoaded, isSignedIn } = useAuth()
   const [showEmptyScreen, setShowEmptyScreen] = useState(false)
   const [showAuthModal, setShowAuthModal] = useState(false)
   const router = useRouter()
@@ -67,7 +68,7 @@ export function ChatPanel({
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    if (!userId) {
+    if (!isSignedIn) {
       setShowAuthModal(true)
       return
     }
@@ -78,7 +79,7 @@ export function ChatPanel({
   // if query is not empty, submit the query
   useEffect(() => {
     if (isFirstRender.current && query && query.trim().length > 0) {
-      if (!userId) {
+      if (!isSignedIn) {
         setShowAuthModal(true)
         return
       }
@@ -88,7 +89,7 @@ export function ChatPanel({
       })
       isFirstRender.current = false
     }
-  }, [query, userId, append])
+  }, [query, append, isSignedIn])
 
   return (
     <div
