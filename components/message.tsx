@@ -30,6 +30,7 @@ export function BotMessage({
       <MemoizedReactMarkdown
         rehypePlugins={[
           [rehypeExternalLinks, { target: '_blank' }],
+          // @ts-ignore - Type incompatibility with VFile versions
           [rehypeKatex]
         ]}
         remarkPlugins={[remarkGfm, remarkMath]}
