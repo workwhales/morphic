@@ -197,6 +197,9 @@ This will allow you to use Morphic as your default search engine in the browser.
 ### List of models applicable to all
 
 - OpenAI
+  - gpt-4.1
+  - gpt-4.1-mini
+  - gpt-4.1-nano
   - o3-mini
   - gpt-4o
   - gpt-4o-mini
@@ -214,12 +217,17 @@ This will allow you to use Morphic as your default search engine in the browser.
   - deepseek-r1
 - Groq
   - deepseek-r1-distill-llama-70b
+  - Llama 4 Maverick 17B
+- Fireworks
+  - DeepSeek R1
+  - Llama 4 Maverick
 - DeepSeek
   - DeepSeek V3
   - DeepSeek R1
 - xAI
   - grok-2
   - grok-2-vision
+  - grok-3-beta
 
 ## ⚡ AI SDK Implementation
 
